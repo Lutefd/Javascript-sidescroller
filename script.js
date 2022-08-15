@@ -5,6 +5,7 @@ window.addEventListener(`load`, function () {
   canvas.height = 720;
   let enemies = [];
   let score = 0;
+  let gameOver = false;
   //classes
   class InputHandler {
     constructor() {
@@ -63,7 +64,16 @@ window.addEventListener(`load`, function () {
         this.height
       );
     }
-    update(input, deltaTime) {
+    update(input, deltaTime, enemies) {
+      //collision detection
+      enemies.forEach((enemy) => {
+        const dx = enemy.x + enemy.width * 0.5 - (this.x + this.width * 0.5);
+        const dy = enemy.y + enemy.height * 0.5 - (this.y + this.height * 0.5);
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < enemy.width * 0.5 + this.width * 0.5) {
+          gameOver = true;
+        }
+      });
       //sprite animation
       if (this.frameTimer >= this.frameInterval) {
         if (this.frameX >= this.maxFrame) this.frameX = 0;
@@ -149,6 +159,7 @@ window.addEventListener(`load`, function () {
       this.markedForDeletion = false;
     }
     draw(context) {
+      context.stroke();
       context.drawImage(
         this.image,
         this.frameX * this.width,
@@ -204,6 +215,17 @@ window.addEventListener(`load`, function () {
     context.fillText('Pontuação: ' + score, 20, 50);
     context.fillStyle = 'white';
     context.fillText('Pontuação: ' + score, 22, 52);
+    if (gameOver) {
+      context.textAlign = 'center';
+      context.fillStyle = 'black';
+      context.fillText('Iih tu perdeu, tente de novo', canvas.width * 0.5, 200);
+      context.fillStyle = 'white';
+      context.fillText(
+        'Iih tu perdeu, tente de novo',
+        canvas.width * 0.5 + 2,
+        202
+      );
+    }
   }
   function animate(timeStamp) {
     const deltaTime = timeStamp - lastTime;
@@ -212,10 +234,10 @@ window.addEventListener(`load`, function () {
     background.draw(ctx);
     background.update();
     player.draw(ctx);
-    player.update(input, deltaTime);
+    player.update(input, deltaTime, enemies);
     handleEnemies(deltaTime);
     displayStatusText(ctx);
-    requestAnimationFrame(animate);
+    if (!gameOver) requestAnimationFrame(animate);
   }
   animate(0);
 });
