@@ -1,7 +1,7 @@
 window.addEventListener(`load`, function () {
   const canvas = document.getElementById(`canvas1`);
   const ctx = canvas.getContext(`2d`);
-  canvas.width = 800;
+  canvas.width = 1400;
   canvas.height = 720;
   let enemies = [];
   let score = 0;
@@ -18,7 +18,7 @@ window.addEventListener(`load`, function () {
           (e.key === 'ArrowRight' && this.keys.indexOf(e.key) === -1)
         ) {
           this.keys.push(e.key);
-        }
+        } else if (e.key === 'Enter' && gameOver) restartGame();
       });
       window.addEventListener('keyup', (e) => {
         if (
@@ -50,6 +50,12 @@ window.addEventListener(`load`, function () {
       this.speed = 0;
       this.vy = 0;
       this.weight = 1;
+    }
+    restart() {
+      this.x = 100;
+      this.y = this.gameHeight - this.height;
+      this.maxFrame = 8;
+      this.frameY = 0;
     }
     draw(context) {
       context.drawImage(
@@ -140,6 +146,9 @@ window.addEventListener(`load`, function () {
       this.x -= this.speed;
       if (this.x < 0 - this.width) this.x = 0;
     }
+    restart() {
+      this.x = 0;
+    }
   }
   class Enemy {
     constructor(gameWidth, gameHeight) {
@@ -210,6 +219,7 @@ window.addEventListener(`load`, function () {
     enemies = enemies.filter((enemy) => !enemy.markedForDeletion);
   }
   function displayStatusText(context) {
+    context.textAlign = 'left';
     context.font = '40px Helvetica';
     context.fillStyle = 'black';
     context.fillText('Pontuação: ' + score, 20, 50);
@@ -218,14 +228,26 @@ window.addEventListener(`load`, function () {
     if (gameOver) {
       context.textAlign = 'center';
       context.fillStyle = 'black';
-      context.fillText('Iih tu perdeu, tente de novo', canvas.width * 0.5, 200);
+      context.fillText(
+        'Iih tu perdeu, aperte enter para tentar de novo',
+        canvas.width * 0.5,
+        200
+      );
       context.fillStyle = 'white';
       context.fillText(
-        'Iih tu perdeu, tente de novo',
+        'Iih tu perdeu, aperte enter para tentar de novo',
         canvas.width * 0.5 + 2,
         202
       );
     }
+  }
+  function restartGame() {
+    player.restart();
+    background.restart();
+    enemies = [];
+    score = 0;
+    gameOver = false;
+    animate(0);
   }
   function animate(timeStamp) {
     const deltaTime = timeStamp - lastTime;
