@@ -6,6 +6,7 @@ window.addEventListener(`load`, function () {
   let enemies = [];
   let score = 0;
   let gameOver = false;
+  const fullScreenButton = document.getElementById('fullScreenButton');
   //classes
   class InputHandler {
     constructor() {
@@ -231,7 +232,16 @@ window.addEventListener(`load`, function () {
   let enemyTimer = 0;
   let enemyInterval = 1000;
   let randomEnemyInterval = Math.random() * 1000 + 500;
-
+  function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+      canvas.requestFullscreen().catch((err) => {
+        alert(`Não foi possível habilitar a tela cheia: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  }
+  fullScreenButton.addEventListener(`click`, toggleFullScreen);
   function handleEnemies(deltaTime) {
     if (enemyTimer > enemyInterval + randomEnemyInterval) {
       enemies.push(new Enemy(canvas.width, canvas.height));
