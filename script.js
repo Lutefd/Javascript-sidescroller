@@ -91,15 +91,43 @@ window.addEventListener(`load`, function () {
       return this.y >= this.gameHeight - this.height;
     }
   }
-  class Background {}
+  class Background {
+    constructor(gameWidth, gameHeight) {
+      this.gameWidth = gameWidth;
+      this.gameHeight = gameHeight;
+      this.image = document.getElementById('backgroundImage');
+      this.x = 0;
+      this.y = 0;
+      this.width = 2400;
+      this.height = 720;
+      this.speed = 10;
+    }
+    draw(context) {
+      context.drawImage(this.image, this.x, this.y, this.width, this.height);
+      context.drawImage(
+        this.image,
+        this.x + this.width - this.speed,
+        this.y,
+        this.width,
+        this.height
+      );
+    }
+    update() {
+      this.x -= this.speed;
+      if (this.x < 0 - this.width) this.x = 0;
+    }
+  }
   class Enemy {}
   const input = new InputHandler();
   const player = new Player(canvas.width, canvas.height);
+  const background = new Background(canvas.width, canvas.height);
   //functions
   function handleEnemies() {}
   function displayStatusText() {}
   function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    background.draw(ctx);
+    background.update();
     player.draw(ctx);
     player.update(input);
     requestAnimationFrame(animate);
