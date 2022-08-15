@@ -3,6 +3,7 @@ window.addEventListener(`load`, function () {
   const ctx = canvas.getContext(`2d`);
   canvas.width = 800;
   canvas.height = 720;
+  let enemies = [];
   //classes
   class InputHandler {
     constructor() {
@@ -117,20 +118,68 @@ window.addEventListener(`load`, function () {
       if (this.x < 0 - this.width) this.x = 0;
     }
   }
-  class Enemy {}
+  class Enemy {
+    constructor(gameWidth, gameHeight) {
+      this.gameWidth = gameWidth;
+      this.gameHeight = gameHeight;
+      this.width = 160;
+      this.height = 119;
+      this.image = document.getElementById('enemyImage');
+      this.x = gameWidth;
+      this.y = this.gameHeight - this.height;
+      this.frameX = 0;
+      this.speed = 8;
+    }
+    draw(context) {
+      context.drawImage(
+        this.image,
+        this.frameX * this.width,
+        0,
+        this.width,
+        this.height,
+        this.x,
+        this.y,
+        this.width,
+        this.height
+      );
+    }
+    update() {
+      this.x -= this.speed;
+    }
+  }
   const input = new InputHandler();
   const player = new Player(canvas.width, canvas.height);
   const background = new Background(canvas.width, canvas.height);
   //functions
-  function handleEnemies() {}
+  let lastTime = 0;
+  let enemyTimer = 0;
+  let enemyInterval = 1000;
+  let randomEnemyInterval = Math.random() * 1000 + 500;
+
+  function handleEnemies(deltaTime) {
+    if (enemyTimer > enemyInterval + randomEnemyInterval) {
+      enemies.push(new Enemy(canvas.width, canvas.height));
+      randomEnemyInterval = Math.random() * 1000 + 500;
+      enemyTimer = 0;
+    } else {
+      enemyTimer += deltaTime;
+    }
+    enemies.forEach((enemy) => {
+      enemy.draw(ctx);
+      enemy.update();
+    });
+  }
   function displayStatusText() {}
-  function animate() {
+  function animate(timeStamp) {
+    const deltaTime = timeStamp - lastTime;
+    lastTime = timeStamp;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     background.draw(ctx);
     background.update();
     player.draw(ctx);
     player.update(input);
+    handleEnemies(deltaTime);
     requestAnimationFrame(animate);
   }
-  animate();
+  animate(0);
 });
